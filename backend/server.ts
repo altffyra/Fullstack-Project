@@ -2,7 +2,7 @@
 // Konfigurera servern
 import express, { Request, Response } from 'express'
 const app = express()
-import { Fruit, fakeData } from './fakeDb'
+import { Fruit, fakeData } from './fakeDb.js'
 const PORT = 1337  // TODO: environment variables istället
 
 // Middleware
@@ -23,8 +23,31 @@ app.get('/hello', (req: Request, res: Response) => {
 
 // Övning: skapa GET och POST-metoder för /api/fruits
 // GET  /api/fruits
+app.get('/api/fruits', (req, res) => {
+	res.send(fakeData.fruits)
+})
+
 // GET  /api/fruits/[id]
+// TypeScript förstår automatiskt URL-parametrar. Följande två rader är om man behöver göra det manuellt.
+type IdObject = { id: string };
+type IdParam = Request<IdObject>;
+app.get('/api/fruits/:id', (req: IdParam, res) => {
+	// Ange id antingen med querystring (url?id=123) eller URL-parameter (url/123)
+	// :id betyder att vi förväntar oss en URL-parameter med namnet "id"
+	let id: string = req.params.id
+	let found = fakeData.fruits.find(fruit => fruit.id === id)
+	// Array.filter returnerar ALLA element som matchar ett villkor
+	// Array.find är smidigare, returnerar FÖRSTA elementet som matchar
+
+	if( found ) {
+		res.send(found)  // status 200
+	} else {
+		res.sendStatus(404)
+	}
+})
+
 // POST /api/fruits
+
 
 
 
