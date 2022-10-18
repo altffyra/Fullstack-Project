@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express'
 const router = express.Router()
-import { Fruit, fakeData } from '../fakeDb.js'
+// import { fakeData } from '../fakeDb.js'
+import db from '../db.js'
+import { Fruit } from '../models.js'
 import { isValidFruit } from '../validation.js'
 // Exempel: frontend skickar "GET /api/data", backend tar emot och servar ett svar
 // HTTP methods: GET, POST, PUT, DELETE -> motsvarar CRUD = Create, Read, Update, Delete
@@ -14,7 +16,11 @@ import { isValidFruit } from '../validation.js'
 // Övning: skapa GET och POST-metoder för /api/fruits
 // GET  /api/fruits
 router.get('/', (req, res) => {
-	res.send(fakeData.fruits)
+	if( db.data ) {
+		res.send(db.data.fruits)
+	} else {
+		res.sendStatus(404)
+	}
 })
 
 // GET  /api/fruits/[id]

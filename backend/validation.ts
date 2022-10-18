@@ -1,4 +1,4 @@
-import { Fruit } from './fakeDb.js'
+import { Fruit } from './models.js'
 
 export function isValidFruit(maybeFruit: Fruit): boolean {
 	// En giltig (valid) frukt måste ha egenskaperna name, price och id.

@@ -2,7 +2,8 @@
 // Konfigurera servern
 import express, { Request, Response } from 'express'
 const app = express()
-import { Fruit, fakeData } from './fakeDb.js'
+import { fakeData } from './fakeDb.js'
+import { Fruit } from './models.js'
 const PORT = 1337  // TODO: environment variables istället
 import fruitsRoute from './routes/fruits.js'
 
