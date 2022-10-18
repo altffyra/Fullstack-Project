@@ -4,6 +4,7 @@ const router = express.Router()
 import db from '../db.js'
 import { Fruit } from '../models.js'
 import { isValidFruit } from '../validation.js'
+import { data as defaultData } from '../defaultData.js'
 // Exempel: frontend skickar "GET /api/data", backend tar emot och servar ett svar
 // HTTP methods: GET, POST, PUT, DELETE -> motsvarar CRUD = Create, Read, Update, Delete
 // Dessa fyra används när vi bygger ett RESTful API
@@ -30,8 +31,12 @@ type IdParam = Request<IdObject>;
 router.get('/:id', (req: IdParam, res) => {
 	// Ange id antingen med querystring (url?id=123) eller URL-parameter (url/123)
 	// :id betyder att vi förväntar oss en URL-parameter med namnet "id"
+	if( !db.data ) {
+		res.sendStatus(404)
+		return
+	}
 	let id: string = req.params.id
-	let found = fakeData.fruits.find(fruit => fruit.id === id)
+	let found = db.data.fruits.find(fruit => fruit.id === id)
 	// Array.filter returnerar ALLA element som matchar ett villkor
 	// Array.find är smidigare, returnerar FÖRSTA elementet som matchar
 
@@ -43,7 +48,7 @@ router.get('/:id', (req: IdParam, res) => {
 })
 
 // POST /api/fruits
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 	let newFruit: Fruit = req.body
 	// Kontrollera att frukten matchar typen Fruit med hjälp av valideringsfunktion (TypeScript kan inte göra det)
 	// Om datan är i ett felaktigt format, skicka statuskod 400: Bad request
@@ -57,7 +62,11 @@ router.post('/', (req, res) => {
 
 	} else if (isValidFruit(newFruit)) {
 		// lägg till och skicka tillbaka statuskod 200
-		fakeData.fruits.push(newFruit)
+		if( !db.data ) {
+			db.data = defaultData
+		}
+		db.data.fruits.push(newFruit)
+		await db.write()
 		res.sendStatus(200)
 
 	} else {
@@ -66,6 +75,28 @@ router.post('/', (req, res) => {
 })
 
 
+// PUT /api/fruits/:id  + request body
+router.put('/:id', async (req: IdParam, res) => {
+	if (!db.data) {
+		res.sendStatus(404)
+		return
+	}
+	let id: string = req.params.id
+	let foundIndex = db.data.fruits.findIndex(fruit => fruit.id === id)
+	let newFruit: Fruit = req.body
+
+	if( foundIndex === -1 ) {
+		res.sendStatus(404)
+		return
+	}
+	if( isValidFruit(newFruit) ) {
+		db.data.fruits[foundIndex] = newFruit
+		await db.write()
+		res.sendStatus(200)
+	} else {
+		res.sendStatus(400)
+	}
+})
 
 
 export default router
