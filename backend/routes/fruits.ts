@@ -98,5 +98,22 @@ router.put('/:id', async (req: IdParam, res) => {
 	}
 })
 
+// DELETE /api/fruits/:id
+router.delete('/:id', async (req: IdParam, res) => {
+	if (!db.data) {
+		res.sendStatus(404)
+		return
+	}
+	let id: string = req.params.id
+	let newFruits: Fruit[] = db.data.fruits.filter(fruit => fruit.id !== id)
+	if( newFruits.length < db.data.fruits.length ) {
+		db.data.fruits = newFruits
+		await db.write()
+		res.sendStatus(200)
+	} else {
+		res.sendStatus(404)
+	}
+})
+
 
 export default router
