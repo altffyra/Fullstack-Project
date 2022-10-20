@@ -35,6 +35,15 @@ app.get('/hello', (req: Request, res: Response) => {
 	res.send('Hello world!')
 })
 
+// Wildcard route, fångar alla övriga requests
+app.get('*', (req, res) => {
+	console.log('Wildcard route aktiverad för GET ' + req.url)
+	// skicka tillbaka index.html, så att frontend routing kan aktiveras
+	const indexPath: string = staticPath + '/index.html'
+	console.log('Path to index.html: ' + indexPath)
+	res.sendFile(indexPath)
+})
+
 
 // Starta servern
 app.listen(PORT, () => {
